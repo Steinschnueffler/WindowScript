@@ -13,7 +13,7 @@ public class Main extends Application {
 		if(args.isEmpty())
 			throw new WindowScriptError("Program must be started with a window script");
 		try {
-			Window window = new Window(args.get(0), stage);
+			Window window = new Window(args.get(0), stage, false);
 			window.show();
 		} catch (WindowScriptException e) {
 			throw new WindowScriptError(e);

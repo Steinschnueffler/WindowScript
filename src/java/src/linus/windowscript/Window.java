@@ -75,11 +75,13 @@ public class Window {
 		COMMAND_CURSOR = "cursor",
 		COMMAND_CURSORIMG = "curorimg",
 		COMMAND_CURSORX = "cursorx",
-		COMMAND_CURSORY = "cursory";
+		COMMAND_CURSORY = "cursory",
+		COMMAND_MODALITY = "modality";
 
 	private static enum Mode { MINIMIZED, NORMAL, FULLSCREEN, MAXIMIZED }
 	private static enum Pos { LEFT_UP, LEFT, LEFT_DOWN, CENTRE_UP, CENTRE, CENTRE_DOWN, RIGHT_UP, RIGHT, RIGHT_DOWN }
 	private static enum Style { DECORATED, TRANSPARENT, UNDECORATED, UNIFIED, UTILITY}
+	private static enum Modality { APPLICATION, WINDOW, NONE }
 	
 	private static final Screen SCREEN = Screen.getPrimary();
 	
@@ -97,18 +99,21 @@ public class Window {
 	
 	private StackPane root = new StackPane(view);
 	private Scene scene = new Scene(root);
+		
+	public final boolean isChild;
 	
-	public Window(Path path, Stage stage) throws WindowScriptException {
+	public Window(Path path, Stage stage, boolean isChild) throws WindowScriptException {
 		path = path.normalize();
 		if(!Files.exists(path))
 			throw new WindowScriptException("File doesn't exists: " + path);
 		this.path = path;
 		this.stage = stage;
 		this.stage.setScene(scene);
+		this.isChild = isChild;
 	}
 	
-	public Window(String path, Stage stage) throws WindowScriptException {
-		this(Paths.get(path), stage);
+	public Window(String path, Stage stage, boolean isChild) throws WindowScriptException {
+		this(Paths.get(path), stage, isChild);
 	}
 	
 	public void setTitle(String title) {
@@ -206,7 +211,7 @@ public class Window {
 		else if(pos.equalsIgnoreCase(Pos.CENTRE_UP.name()))
 			setPos((screenWidth / 2) - (stage.getWidth() / 2), 0);
 		else if(pos.equalsIgnoreCase(Pos.CENTRE.name()))
-			setPos((screenWidth / 2) - (stage.getWidth() / 2), (screenHeight / 2) - (stage.getHeight() - 2));
+			setPos((screenWidth / 2) - (stage.getWidth() / 2), (screenHeight / 2) - (stage.getHeight() / 2));
 		else if(pos.equalsIgnoreCase(Pos.CENTRE_DOWN.name()))
 			setPos((screenWidth / 2) - (stage.getWidth() / 2), screenHeight - stage.getHeight());
 		else if(pos.equalsIgnoreCase(Pos.RIGHT_UP.name()))
@@ -328,19 +333,43 @@ public class Window {
 			System.err.println("Invalid arg for style: " + style);
 	}
 	
+	public boolean hasIcon() {
+		return stage.getIcons().size() > 0;
+	}
+	
 	public void setChild(String arg) {
 		Path file = getPath(arg, path);
-		Stage stage = new Stage();
-		stage.initOwner(this.stage);
+		
+		Stage childStage = new Stage();
+		childStage.initOwner(this.stage);
+		childStage.getIcons().setAll(stage.getIcons());
+		childStage.initStyle(stage.getStyle());
+		
 		try {
-			Window window = new Window(file, stage);
+			Window window = new Window(file, childStage, true);
 			childs.add(window);
 		} catch (WindowScriptException e) {
-			System.err.println(e.getLocalizedMessage());
+			System.err.println("Error at creating window: " + e.getLocalizedMessage());
 		}
 	}
 	
 	public void setCursor(String cursor) {
+	}
+	
+	public void setModality(String modality) {
+		if(!isChild) {
+			System.err.println("Should't set modality on main window");
+			return;
+		}
+		
+		if(modality.equalsIgnoreCase(Modality.APPLICATION.name()))
+			stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+		else if(modality.equalsIgnoreCase(Modality.WINDOW.name()))
+			stage.initModality(javafx.stage.Modality.WINDOW_MODAL);
+		else if(modality.equalsIgnoreCase(Modality.NONE.name()))
+			stage.initModality(javafx.stage.Modality.NONE);
+		else
+			System.err.println("Invalid arg for modality: " + modality);
 	}
 	
 	private void read() throws WindowScriptException {
@@ -363,7 +392,8 @@ public class Window {
 					!execute(s, COMMAND_ICON, this::setIcon) &&
 					!execute(s, COMMAND_CONTENT, this::setContent) &&
 					!execute(s, COMMAND_STYLE, this::setStyle) &&
-					!execute(s, COMMAND_CHILD, this::setChild)
+					!execute(s, COMMAND_CHILD, this::setChild) &&
+					!execute(s, COMMAND_MODALITY, this::setModality)
 				) {
 					System.err.println("Unknown command: " + s);
 				}
