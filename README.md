@@ -156,7 +156,7 @@ Following file will shown as a window, with:
 * the icon of the png Icon.png, which is next to the WindowScript file
 * the position in the centre of the screen
 
-
+    ````text
     title My Window  
     width 800  
     height 400  
