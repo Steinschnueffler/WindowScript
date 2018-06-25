@@ -6,5 +6,5 @@ module linus.windowscript{
 	requires transitive javafx.graphics;
 	requires javafx.web;
 	
-	exports linus.windowscript;
+	exports linus.wml;
 }

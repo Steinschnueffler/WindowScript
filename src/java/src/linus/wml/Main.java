@@ -1,4 +1,4 @@
-package linus.windowscript;
+package linus.wml;
 
 import java.util.List;
 
@@ -11,12 +11,12 @@ public class Main extends Application {
 	public void start(Stage stage) {
 		List<String> args = getParameters().getRaw();
 		if(args.isEmpty())
-			throw new WindowScriptError("Program must be started with a window script");
+			throw new MLError("Program must be started with a window script");
 		try {
-			Window window = new Window(args.get(0), stage, false);
+			MLWindow window = new MLWindow(args.get(0), stage, false);
 			window.show();
-		} catch (WindowScriptException e) {
-			throw new WindowScriptError(e);
+		} catch (MLException e) {
+			throw new MLError(e);
 		}
 	}
 	

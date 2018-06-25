@@ -148,7 +148,7 @@ Following keywords are implemented:
 
 Following file will shown as a window, with:
 
-* the width 800 
+* the width 800
 * the height 400
 * the content from the file Content.html, which is next to the WindowScript file
 * resizable on true
@@ -164,7 +164,7 @@ Following file will shown as a window, with:
     icon Icon.png  
     content Content.html
     pos centre
-    
+
 resizable and pos are optional, because they are already default.
 
 ## License
