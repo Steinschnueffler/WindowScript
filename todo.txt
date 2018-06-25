@@ -1,0 +1,4 @@
+Name (WindowScript (.ws), WindowMarkupLanguage(.wml), ???)
+Installer for Windows (Register file endings, path for cmd, etc)
+Rename WindowsLauncher
+Support for other things like HTML ? (Markdown, images, etc?)
